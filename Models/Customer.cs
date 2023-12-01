@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Inlämningsuppgift_Databasutveckling.Models
         public int CustomerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public int CardId { get; set; }
+        public int CardId { get; set; }         
         public int CardPin { get; set; }
 
         public ICollection<Library> Libraries { get; set; } = new List<Library>();

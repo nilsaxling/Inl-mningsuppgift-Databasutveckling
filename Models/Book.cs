@@ -14,6 +14,9 @@ namespace Inlämningsuppgift_Databasutveckling.Models
         public int Isbn { get; set; }
         public int ReleaseDate { get; set; }
         public int Rating { get; set; }
+        public bool IsRented { get; set; }
+        public int? DateOfLoan { get; set; }
+        public int? DateOfReturn { get; set; }
         public Book()
         {
             
