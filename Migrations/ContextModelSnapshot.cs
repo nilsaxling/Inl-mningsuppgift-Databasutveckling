@@ -22,21 +22,6 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CustomerLibrary", b =>
-                {
-                    b.Property<int>("CustomersCustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LibrariesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersCustomerId", "LibrariesId");
-
-                    b.HasIndex("LibrariesId");
-
-                    b.ToTable("CustomerLibrary");
-                });
-
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
                 {
                     b.Property<int>("BookId")
@@ -53,11 +38,14 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DateOfLoan")
+                    b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DateOfReturn")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("DateOfLoan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateOfReturn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsRented")
                         .HasColumnType("bit");
@@ -71,10 +59,12 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReleaseDate")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BookId");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("LibraryId");
 
@@ -103,7 +93,12 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("LibraryId")
+                        .HasColumnType("int");
+
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("LibraryId");
 
                     b.ToTable("Customers");
                 });
@@ -125,31 +120,34 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.ToTable("Libraries");
                 });
 
-            modelBuilder.Entity("CustomerLibrary", b =>
-                {
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersCustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
-                        .WithMany()
-                        .HasForeignKey("LibrariesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
                 {
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
+                        .WithMany("BooksBorrowed")
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
                         .WithMany("Books")
                         .HasForeignKey("LibraryId");
                 });
 
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
+                {
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
+                        .WithMany("Customers")
+                        .HasForeignKey("LibraryId");
+                });
+
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
+                {
+                    b.Navigation("BooksBorrowed");
+                });
+
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Library", b =>
                 {
                     b.Navigation("Books");
+
+                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

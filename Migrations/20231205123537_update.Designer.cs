@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231201120403_update3")]
-    partial class update3
+    [Migration("20231205123537_update")]
+    partial class update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,11 +56,11 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DateOfLoan")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("DateOfLoan")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int?>("DateOfReturn")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("DateOfReturn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsRented")
                         .HasColumnType("bit");
@@ -74,8 +74,8 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReleaseDate")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BookId");
 

@@ -1,10 +1,14 @@
-﻿namespace Inlämningsuppgift_Databasutveckling
+﻿using Inlämningsuppgift_Databasutveckling.Data;
+
+namespace Inlämningsuppgift_Databasutveckling
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            DataAccess dataAccess = new DataAccess();
+
+            dataAccess.Seed();
         }
     }
 }

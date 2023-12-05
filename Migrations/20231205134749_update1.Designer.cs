@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231201115702_update2")]
-    partial class update2
+    [Migration("20231205134749_update1")]
+    partial class update1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,21 +24,6 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CustomerLibrary", b =>
-                {
-                    b.Property<int>("CustomersCustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LibrariesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersCustomerId", "LibrariesId");
-
-                    b.HasIndex("LibrariesId");
-
-                    b.ToTable("CustomerLibrary");
-                });
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
                 {
@@ -56,11 +41,14 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DateOfLoan")
+                    b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DateOfReturn")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("DateOfLoan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateOfReturn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsRented")
                         .HasColumnType("bit");
@@ -74,10 +62,12 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReleaseDate")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BookId");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("LibraryId");
 
@@ -106,7 +96,12 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("LibraryId")
+                        .HasColumnType("int");
+
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("LibraryId");
 
                     b.ToTable("Customers");
                 });
@@ -128,31 +123,34 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.ToTable("Libraries");
                 });
 
-            modelBuilder.Entity("CustomerLibrary", b =>
-                {
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersCustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
-                        .WithMany()
-                        .HasForeignKey("LibrariesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
                 {
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
+                        .WithMany("BooksBorrowed")
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
                         .WithMany("Books")
                         .HasForeignKey("LibraryId");
                 });
 
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
+                {
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
+                        .WithMany("Customers")
+                        .HasForeignKey("LibraryId");
+                });
+
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
+                {
+                    b.Navigation("BooksBorrowed");
+                });
+
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Library", b =>
                 {
                     b.Navigation("Books");
+
+                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

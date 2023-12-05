@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,9 +33,7 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IsRented = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfLoan = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfReturn = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,8 +49,11 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     BookTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Isbn = table.Column<int>(type: "int", nullable: false),
-                    ReleaseDate = table.Column<int>(type: "int", nullable: false),
+                    ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: false),
+                    IsRented = table.Column<bool>(type: "bit", nullable: false),
+                    DateOfLoan = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DateOfReturn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LibraryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

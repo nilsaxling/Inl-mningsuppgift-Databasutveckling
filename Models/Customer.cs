@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Inlämningsuppgift_Databasutveckling.Models
 {
@@ -12,16 +7,15 @@ namespace Inlämningsuppgift_Databasutveckling.Models
         public int CustomerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public int CardId { get; set; }         
+        public int CardId { get; set; }
         public int CardPin { get; set; }
 
-        public ICollection<Library> Libraries { get; set; } = new List<Library>();
+        // Lägg till en ICollection för att representera böcker som kunden har lånat
+        public ICollection<Book> BooksBorrowed { get; set; } = new List<Book>();
 
         public Customer()
         {
-            
+
         }
     }
-
-    
 }
