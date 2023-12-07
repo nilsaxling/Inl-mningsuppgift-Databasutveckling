@@ -14,64 +14,34 @@ namespace Inlämningsuppgift_Databasutveckling.Data
         {
             using (Context context = new Context())
             {
-                
 
-                Book book1 = new Book();
-                book1.BookTitle = "Jag är Zlatan Ibrahimović";
-                book1.Author = "David Lagercrantz";
-                book1.Isbn = 987654321;
-                book1.ReleaseDate = new DateTime(2022, 07, 22);
-                book1.Rating = 9;
-                book1.IsRented = false;  // Boken är inte lånad i början
+                // Skapa författare
+                Author author1 = new Author { Name = "David Lagercrantz" };
+                context.Authors.Add(author1);
 
-                Book book2 = new Book();
-                book2.BookTitle = "Börje Salming ";
-                book2.Author = "Ola Liljedahl";
-                book2.Isbn = 678645312;
-                book2.ReleaseDate = new DateTime(2019, 10, 13);
-                book2.Rating = 7;
-                book2.IsRented = false;
+                Author author2 = new Author { Name = "Ola Liljedahl" };
+                context.Authors.Add(author2);
 
-                Book book3 = new Book
-                {
-                    BookTitle = "Petter Northug",
-                    Author = "Thor Gotaas",
-                    Isbn = 766545343,
-                    ReleaseDate = new DateTime(2022, 07, 22),
-                    Rating = 5,
-                    DateOfLoan = null,
-                    DateOfReturn = null
-                };
+                Author author3 = new Author { Name = "Thor Gotaas" };
+                context.Authors.Add(author3);
 
-                Book book4 = new Book
-                {
-                    BookTitle = "Unstoppable - Max Verstappen",
-                    Author = "Mark Hughes",
-                    Isbn = 457654451,
-                    ReleaseDate = new DateTime(2018, 01, 02),
-                    Rating = 10,
-                    DateOfLoan = new DateTime(2023, 05, 22),
-                    DateOfReturn = new DateTime(2023, 07, 01)
-                };
+                Author author4 = new Author { Name = "Mark Hughes" };
+                context.Authors.Add(author4);
 
-                Book book5 = new Book
-                {
-                    BookTitle = "Haaland",
-                    Author = "Lars Sivertsen",
-                    Isbn = 896534114,
-                    ReleaseDate = new DateTime(2022, 11, 06),
-                    Rating = 3,
-                    DateOfLoan = null,
-                    DateOfReturn = null
-                };
+                Author author5 = new Author { Name = "Lars Sivertsen" };
+                context.Authors.Add(author5);
 
+
+                // Skapa låntagare
                 Customer customer1 = new Customer
                 {
                     FirstName = "Stefan",
                     LastName = "Olsson",
                     CardId = 2345678,
                     CardPin = 2123
+                    
                 };
+                
 
                 Customer customer2 = new Customer
                 {
@@ -80,6 +50,7 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                     CardId = 3243456,
                     CardPin = 1254
                 };
+                
 
                 Customer customer3 = new Customer
                 {
@@ -88,37 +59,89 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                     CardId = 1375432,
                     CardPin = 1762
                 };
+                
 
-                context.Books.Add(book1);
-                context.Books.Add(book2);
-                context.Books.Add(book3);
-                context.Books.Add(book4);
-                context.Books.Add(book5);
+                Book book1 = new Book();
+                book1.BookTitle = "Jag är Zlatan Ibrahimović";
+                book1.Isbn = 234342323;              
+                book1.Rating = 10;
+                customer1.BooksBorrowed.Add(book1);
+                book1.IsRented = true;
+               
 
-                context.Customers.Add(customer1);
-                context.Customers.Add(customer2);
-                context.Customers.Add(customer3);
+                Book book2 = new Book();
+                book2.BookTitle = "Börje Salming";
+                book2.Isbn = 267678312;
+                book2.Rating = 9;
+                customer2.BooksBorrowed.Add(book2);
+                book2.IsRented = true;
+                
 
-                // Låna några böcker för att testa
-                BorrowBook(context, book1.BookId, customer1.CardId);
-                BorrowBook(context, book2.BookId, customer2.CardId);
-                BorrowBook(context, book3.BookId, customer3.CardId);
+                Book book3 = new Book();
+                book3.BookTitle = "Petter Northug";
+                book3.Isbn = 128956123;               
+                book3.Rating = 6;
+                customer3.BooksBorrowed.Add(book3);
+                book3.IsRented = true;
+                
 
+                Book book4 = new Book();
+                book4.BookTitle = "Unstoppable - Max Verstappen";
+                book4.Isbn = 244342356;
+                book4.IsRented = false;
+                book4.Rating = 7;
+                
+
+                Book book5 = new Book();
+                book5.BookTitle = "Haaland";
+                book5.Isbn = 896724321;
+                book5.IsRented = false;
+                book5.Rating = 9;
+                
+
+
+                // Lägg till författare och böcker i context
+                context.Authors.AddRange(author1, author2, author3, author4, author5);
+                context.Books.AddRange(book1, book2, book3, book4, book5);
+
+
+                // Lägg till låntagare i context
+                context.Customers.AddRange(customer1, customer2, customer3);
+
+                
+
+                //// Låna några böcker för att testa
+                BorrowBook(context, book1.Id, customer1.Id);
+                BorrowBook(context, book2.Id, customer2.Id);
+                BorrowBook(context, book3.Id, customer3.Id);
+
+                // Spara ändringar i databasen
                 context.SaveChanges();
             }
         }
 
-        private void BorrowBook(Context context, int bookId, int cardNumber)
+
+       
+        private void BorrowBook(Context context, int bookId, int customerId)
         {
             Book book = context.Books.Find(bookId);
-            Customer customer = context.Customers.Find(cardNumber);
+            Customer customer = context.Customers.Find(customerId);
 
             if (book != null && customer != null)
             {
+                // Uppdatera bokens låninformation
+                book.IsRented = true;
                 book.DateOfLoan = DateTime.Now;
                 book.DateOfReturn = null;
 
+                // Här sätter vi CustomerId på boken
+                book.Id = customer.Id;
+
+                // Lägg till boken i kundens lista över lånade böcker
                 customer.BooksBorrowed.Add(book);
+
+                // Spara ändringar i context
+                context.SaveChanges();
             }
             else
             {
@@ -126,30 +149,8 @@ namespace Inlämningsuppgift_Databasutveckling.Data
             }
         }
 
-        public void BorrowBook(int bookId, int cardNumber)
-        {
-            using (Context context = new Context())
-            {
-                Book book = context.Books.Find(bookId);
-                Customer customer = context.Customers.Find(cardNumber);
 
-                if (book != null && customer != null && !book.IsRented)
-                {
-                    book.IsRented = true;
-                    book.DateOfLoan = DateTime.Now;
-                    book.DateOfReturn = null;
 
-                    // Lägg till lånet i kundens historik
-                    customer.BooksBorrowed.Add(book);
-
-                    context.SaveChanges();
-                }
-                else
-                {
-                    Console.WriteLine("Book not available for borrowing or invalid customer.");
-                }
-            }
-        }
 
         public void ReturnBook(int bookId)
         {
@@ -182,7 +183,7 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                     Console.WriteLine($"Books borrowed by {customer.FirstName} {customer.LastName}:");
                     foreach (var book in customer.BooksBorrowed)
                     {
-                        Console.WriteLine($"{book.BookTitle} by {book.Author}");
+                        Console.WriteLine($"{book.BookTitle} by {book.Authors}");
                     }
                 }
                 else

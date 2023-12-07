@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231205134749_update1")]
-    partial class update1
+    [Migration("20231207131440_changeOfContext")]
+    partial class changeOfContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,17 +25,45 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
+            modelBuilder.Entity("AuthorBook", b =>
                 {
-                    b.Property<int>("BookId")
+                    b.Property<int>("AuthorsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BooksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AuthorsId", "BooksId");
+
+                    b.HasIndex("BooksId");
+
+                    b.ToTable("AuthorBook");
+                });
+
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Author", b =>
+                {
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Author")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Authors");
+                });
+
+            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BookTitle")
                         .IsRequired()
@@ -56,33 +84,28 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.Property<int>("Isbn")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LibraryId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("BookId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("LibraryId");
 
                     b.ToTable("Books");
                 });
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
                 {
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CardId")
+                    b.Property<int?>("CardId")
                         .HasColumnType("int");
 
                     b.Property<int>("CardPin")
@@ -96,31 +119,24 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LibraryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerId");
-
-                    b.HasIndex("LibraryId");
+                    b.HasKey("Id");
 
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Library", b =>
+            modelBuilder.Entity("AuthorBook", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Author", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Libraries");
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
@@ -128,29 +144,11 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                     b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
                         .WithMany("BooksBorrowed")
                         .HasForeignKey("CustomerId");
-
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
-                        .WithMany("Books")
-                        .HasForeignKey("LibraryId");
-                });
-
-            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
-                {
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Library", null)
-                        .WithMany("Customers")
-                        .HasForeignKey("LibraryId");
                 });
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
                 {
                     b.Navigation("BooksBorrowed");
-                });
-
-            modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Library", b =>
-                {
-                    b.Navigation("Books");
-
-                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

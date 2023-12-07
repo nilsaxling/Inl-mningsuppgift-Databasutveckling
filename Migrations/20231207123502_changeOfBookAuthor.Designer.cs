@@ -4,6 +4,7 @@ using Inlämningsuppgift_Databasutveckling.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20231207123502_changeOfBookAuthor")]
+    partial class changeOfBookAuthor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,6 +70,7 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CustomerId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("DateOfLoan")
@@ -102,7 +106,7 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CardId")
+                    b.Property<int>("CardId")
                         .HasColumnType("int");
 
                     b.Property<int>("CardPin")
@@ -138,9 +142,13 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Book", b =>
                 {
-                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", null)
+                    b.HasOne("Inlämningsuppgift_Databasutveckling.Models.Customer", "Customer")
                         .WithMany("BooksBorrowed")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Inlämningsuppgift_Databasutveckling.Models.Customer", b =>
