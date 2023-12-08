@@ -12,6 +12,7 @@ namespace Inlämningsuppgift_Databasutveckling.Models
         public ICollection <Author> Authors { get; set; } = new List<Author>();
         public int Isbn { get; set; } = new Random().Next(10000000,999999999);
         public DateTime? ReleaseDate { get; set; }
+
         public int Rating { get; set; }
         public bool IsRented { get; set; }
 

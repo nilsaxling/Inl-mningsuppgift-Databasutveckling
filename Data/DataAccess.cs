@@ -64,35 +64,42 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                 Book book1 = new Book();
                 book1.BookTitle = "Jag är Zlatan Ibrahimović";              
                 book1.Rating = 10;
-                book1.IsRented = true;
+                book1.ReleaseDate = DateTime.Now;
+                book1.IsRented = false;
                
 
                 Book book2 = new Book();
                 book2.BookTitle = "Börje Salming";
                 book2.Isbn = 267678312;
                 book2.Rating = 9;
-                book2.IsRented = true;
+                book2.ReleaseDate = DateTime.Now;
+                book2.IsRented = false;
                 
 
                 Book book3 = new Book();
                 book3.BookTitle = "Petter Northug";
                 book3.Isbn = 128956123;               
                 book3.Rating = 6;
-                book3.IsRented = true;
+                book3.ReleaseDate = DateTime.Now;
+                book3.IsRented = false;
                 
 
                 Book book4 = new Book();
                 book4.BookTitle = "Unstoppable - Max Verstappen";
                 book4.Isbn = 244342356;
-                book4.IsRented = false;
                 book4.Rating = 7;
+                book4.ReleaseDate = DateTime.Now;
+                book4.IsRented = false;
+                
                 
 
                 Book book5 = new Book();
                 book5.BookTitle = "Haaland";
                 book5.Isbn = 896724321;
-                book5.IsRented = false;
                 book5.Rating = 9;
+                book5.ReleaseDate = DateTime.Now;
+                book5.IsRented = false;
+                
                 
 
                 //Add authors, books and customer to context
@@ -107,11 +114,11 @@ namespace Inlämningsuppgift_Databasutveckling.Data
 
                 //Add loan for the books
                
-                Loan loan1 = new Loan { CustomerID = customer1.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
-                Loan loan2 = new Loan { CustomerID = customer2.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
-                Loan loan3 = new Loan { CustomerID = customer3.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+                //Loan loan1 = new Loan { CustomerID = customer1.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+                //Loan loan2 = new Loan { CustomerID = customer2.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+                //Loan loan3 = new Loan { CustomerID = customer3.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
 
-                context.Loans.AddRange(loan1, loan2, loan3);
+                //context.Loans.AddRange(loan1, loan2, loan3);
 
 
                 // Save changes in the database
@@ -205,7 +212,7 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                 // Check if the book and customer exist.
                 if (book != null && customer != null)
                 {
-                    // Check if th ebook is avaible for loan.
+                    // Check if the book is avaible for loan.
                     if (book.Loan == null || book.Loan.DateOfReturn != null)
                     {
                         //  Instantiate a new LoanDetails object to track the loan details
@@ -245,17 +252,18 @@ namespace Inlämningsuppgift_Databasutveckling.Data
         }
 
 
-        
 
-        public void ReturnBook(int bookId, int customerId)
+
+        public void ReturnBook(int bookId)
         {
             using (Context context = new Context())
             {
-                Book book = context.Books.Find(bookId);
-                Customer customerWhoReturned = context.Customers.Find(customerId);
+                // Fetch the book and explicitly load its Loan property.
+                Book book = context.Books
+                    .Include(b => b.Loan)
+                    .FirstOrDefault(b => b.BookID == bookId);
 
                 // Check if the book exists and is currently rented.
-
                 if (book != null && book.IsRented)
                 {
                     // Update book information to indicate it's no longer rented and set the return date.
@@ -265,15 +273,16 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                     context.SaveChanges();
 
                     // Display a success message.
-                    Console.WriteLine($"Book '{book.BookTitle}' has been returned by {customerWhoReturned.FirstName} {customerWhoReturned.LastName}.");
+                    Console.WriteLine($"Book '{book.BookTitle}' has been returned.");
                 }
                 else
-
-                    // Display a error message if the book is not found or not currently rented.
+                {
+                    // Display an error message if the book is not found or not currently rented.
                     Console.WriteLine("Invalid book or book is not currently rented.");
-                
+                }
             }
         }
+
 
 
 
