@@ -9,6 +9,8 @@ namespace Inlämningsuppgift_Databasutveckling
             DataAccess dataAccess = new DataAccess();
 
             dataAccess.Seed();
+
+            //dataAccess.BorrowBook(1,1);
         }
     }
 }

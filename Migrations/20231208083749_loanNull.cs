@@ -5,17 +5,17 @@
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     /// <inheritdoc />
-    public partial class changeOfClasses : Migration
+    public partial class loanNull : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Books_Customers_CustomerId",
+                name: "FK_Books_Loans_LoanID",
                 table: "Books");
 
             migrationBuilder.AlterColumn<int>(
-                name: "CustomerId",
+                name: "LoanID",
                 table: "Books",
                 type: "int",
                 nullable: true,
@@ -23,22 +23,22 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                 oldType: "int");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Books_Customers_CustomerId",
+                name: "FK_Books_Loans_LoanID",
                 table: "Books",
-                column: "CustomerId",
-                principalTable: "Customers",
-                principalColumn: "Id");
+                column: "LoanID",
+                principalTable: "Loans",
+                principalColumn: "LoanID");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Books_Customers_CustomerId",
+                name: "FK_Books_Loans_LoanID",
                 table: "Books");
 
             migrationBuilder.AlterColumn<int>(
-                name: "CustomerId",
+                name: "LoanID",
                 table: "Books",
                 type: "int",
                 nullable: false,
@@ -48,11 +48,11 @@ namespace Inlämningsuppgift_Databasutveckling.Migrations
                 oldNullable: true);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Books_Customers_CustomerId",
+                name: "FK_Books_Loans_LoanID",
                 table: "Books",
-                column: "CustomerId",
-                principalTable: "Customers",
-                principalColumn: "Id",
+                column: "LoanID",
+                principalTable: "Loans",
+                principalColumn: "LoanID",
                 onDelete: ReferentialAction.Cascade);
         }
     }

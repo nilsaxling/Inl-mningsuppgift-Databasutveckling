@@ -15,24 +15,24 @@ namespace Inlämningsuppgift_Databasutveckling.Data
             using (Context context = new Context())
             {
 
-                // Skapa författare
+                // Creates Authors
                 Author author1 = new Author { Name = "David Lagercrantz" };
-                context.Authors.Add(author1);
+                
 
                 Author author2 = new Author { Name = "Ola Liljedahl" };
-                context.Authors.Add(author2);
+                
 
                 Author author3 = new Author { Name = "Thor Gotaas" };
-                context.Authors.Add(author3);
+                
 
                 Author author4 = new Author { Name = "Mark Hughes" };
-                context.Authors.Add(author4);
+                
 
                 Author author5 = new Author { Name = "Lars Sivertsen" };
-                context.Authors.Add(author5);
+                
 
 
-                // Skapa låntagare
+                // Creates Customers
                 Customer customer1 = new Customer
                 {
                     FirstName = "Stefan",
@@ -60,12 +60,10 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                     CardPin = 1762
                 };
                 
-
+                //Creates Books
                 Book book1 = new Book();
-                book1.BookTitle = "Jag är Zlatan Ibrahimović";
-                book1.Isbn = 234342323;              
+                book1.BookTitle = "Jag är Zlatan Ibrahimović";              
                 book1.Rating = 10;
-                customer1.BooksBorrowed.Add(book1);
                 book1.IsRented = true;
                
 
@@ -73,7 +71,6 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                 book2.BookTitle = "Börje Salming";
                 book2.Isbn = 267678312;
                 book2.Rating = 9;
-                customer2.BooksBorrowed.Add(book2);
                 book2.IsRented = true;
                 
 
@@ -81,7 +78,6 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                 book3.BookTitle = "Petter Northug";
                 book3.Isbn = 128956123;               
                 book3.Rating = 6;
-                customer3.BooksBorrowed.Add(book3);
                 book3.IsRented = true;
                 
 
@@ -99,120 +95,254 @@ namespace Inlämningsuppgift_Databasutveckling.Data
                 book5.Rating = 9;
                 
 
-
-                // Lägg till författare och böcker i context
+                //Add authors, books and customer to context
+                
                 context.Authors.AddRange(author1, author2, author3, author4, author5);
                 context.Books.AddRange(book1, book2, book3, book4, book5);
-
-
-                // Lägg till låntagare i context
                 context.Customers.AddRange(customer1, customer2, customer3);
 
-                
 
-                //// Låna några böcker för att testa
-                BorrowBook(context, book1.Id, customer1.Id);
-                BorrowBook(context, book2.Id, customer2.Id);
-                BorrowBook(context, book3.Id, customer3.Id);
+                context.SaveChanges();
 
-                // Spara ändringar i databasen
+
+                //Add loan for the books
+               
+                Loan loan1 = new Loan { CustomerID = customer1.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+                Loan loan2 = new Loan { CustomerID = customer2.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+                Loan loan3 = new Loan { CustomerID = customer3.CustomerID, DateOfLoan = DateTime.Now, DateOfReturn = null };
+
+                context.Loans.AddRange(loan1, loan2, loan3);
+
+
+                // Save changes in the database
                 context.SaveChanges();
             }
         }
 
 
-       
-        private void BorrowBook(Context context, int bookId, int customerId)
+        public void AddCustomer(string firstName, string lastName) 
         {
-            Book book = context.Books.Find(bookId);
-            Customer customer = context.Customers.Find(customerId);
-
-            if (book != null && customer != null)
+            using (var context = new Context()) 
             {
-                // Uppdatera bokens låninformation
-                book.IsRented = true;
-                book.DateOfLoan = DateTime.Now;
-                book.DateOfReturn = null;
+                var newCustomer = new Customer 
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                };
 
-                // Här sätter vi CustomerId på boken
-                book.Id = customer.Id;
+                context.Customers.Add(newCustomer);
 
-                // Lägg till boken i kundens lista över lånade böcker
-                customer.BooksBorrowed.Add(book);
+                context.SaveChanges();
 
-                // Spara ändringar i context
+
+            }
+
+        }
+        public void AddBook(string bookTitle, DateTime? releaseDate, int rating, List<string> authorNames)
+        {
+            using (var context = new Context())
+            {
+                //Get existing authors or create new authors if they don't exist
+                
+                var authors = authorNames.Select(authorName =>
+                {
+                    var existingAuthor = context.Authors.FirstOrDefault(a => a.Name == authorName);
+                    return existingAuthor ?? new Author { Name = authorName };
+                }).ToList();
+
+                var newBook = new Book
+                {
+                    BookTitle = bookTitle,
+                    ReleaseDate = releaseDate,
+                    Rating = rating,
+                    Authors = authors  
+                };
+
+                //Add the new book to the list
+                foreach (var author in authors)
+                {
+                    author.Books.Add(newBook);
+                }
+
+                context.Books.Add(newBook);
                 context.SaveChanges();
             }
-            else
+        }
+
+
+
+        public void AddAuthor(string name)
+        {
+            using (var context = new Context())
             {
-                Console.WriteLine("Invalid book or invalid customer.");
+                var newAuthor = new Author
+                {
+                    Name = name,
+                    
+                };
+
+                context.Authors.Add(newAuthor);
+
+                context.SaveChanges();
+
+
             }
         }
 
 
 
 
-        public void ReturnBook(int bookId)
+        public void BorrowBook(int bookId, int customerId)
+        {
+
+            using (var context = new Context())
+            {
+
+                // Fetch the book and customer based on their IDs.              
+                Book book = context.Books.Find(bookId);
+                Customer customer = context.Customers.Find(customerId);
+
+                // Check if the book and customer exist.
+                if (book != null && customer != null)
+                {
+                    // Check if th ebook is avaible for loan.
+                    if (book.Loan == null || book.Loan.DateOfReturn != null)
+                    {
+                        //  Instantiate a new LoanDetails object to track the loan details
+                        var loanDetails = new Loan
+                        {
+                            BookID = book.BookID,
+                            CustomerID = customer.CustomerID,
+                            DateOfLoan = DateTime.Now,
+                            DateOfReturn = null
+                        };
+
+                        //Update books loan information
+                        book.Loan = loanDetails;
+                        book.IsRented = true;
+
+                        //Add loan details to the context
+                        context.Loans.Add(loanDetails);
+
+                        // Update the Loans property in the Customer class (an ICollection of LoanDetails).
+                        customer.Loans.Add(loanDetails);
+
+                        context.SaveChanges();
+
+                        Console.WriteLine($"'{book.BookTitle}' has been rented to {customer.FirstName} {customer.LastName}.");
+                    }
+                    else
+                    {
+                        // If the book is already loaned out:
+                        Console.WriteLine($"Sorry, {book.BookTitle} is already loaned out, please choose another book.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Please make sure the book and customer exist before attempting to loan.");
+                }
+            }
+        }
+
+
+        
+
+        public void ReturnBook(int bookId, int customerId)
         {
             using (Context context = new Context())
             {
                 Book book = context.Books.Find(bookId);
+                Customer customerWhoReturned = context.Customers.Find(customerId);
+
+                // Check if the book exists and is currently rented.
 
                 if (book != null && book.IsRented)
                 {
+                    // Update book information to indicate it's no longer rented and set the return date.
                     book.IsRented = false;
-                    book.DateOfReturn = DateTime.Now;
+                    book.Loan.DateOfReturn = DateTime.Now;
 
                     context.SaveChanges();
+
+                    // Display a success message.
+                    Console.WriteLine($"Book '{book.BookTitle}' has been returned by {customerWhoReturned.FirstName} {customerWhoReturned.LastName}.");
                 }
                 else
-                {
+
+                    // Display a error message if the book is not found or not currently rented.
                     Console.WriteLine("Invalid book or book is not currently rented.");
-                }
+                
             }
         }
 
-        public void DisplayBorrowedBooks(int cardNumber)
-        {
-            using (Context context = new Context())
-            {
-                Customer customer = context.Customers.Include(c => c.BooksBorrowed).FirstOrDefault(c => c.CardId == cardNumber);
 
-                if (customer != null)
-                {
-                    Console.WriteLine($"Books borrowed by {customer.FirstName} {customer.LastName}:");
-                    foreach (var book in customer.BooksBorrowed)
-                    {
-                        Console.WriteLine($"{book.BookTitle} by {book.Authors}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid customer.");
-                }
+
+
+
+        public void DeleteBorrower(int customerId)
+        {
+            Context context = new Context();
+
+            // Find the customer to be deleted based on their ID.
+            var borrowDelete = context.Customers.Find(customerId);
+            
+            // Check if the customer exists.
+            if (borrowDelete != null)
+            {
+                // Deletes the customer from the context.
+                context.Customers.Remove(borrowDelete);
+                context.SaveChanges();
+                Console.WriteLine($"'{borrowDelete.FirstName} {borrowDelete.LastName}' Has been removed.");
+            }
+            else
+            {
+                
+                Console.WriteLine("Alreday been removed or has not been added");
             }
         }
-
-        public void DeleteBorrower(int cardNumber)
+        public void DeleteAuthor(int authorID)
         {
             using (Context context = new Context())
             {
-                Customer customer = context.Customers.Find(cardNumber);
-
-                if (customer != null)
+                // Find the author to be deleted based on their ID.
+                Author author = context.Authors.Find(authorID);
+                
+                // Check if the author exists.
+                if (author != null)
                 {
-                    // Ta bort alla böcker som kunden har lånat
-                    foreach (var book in customer.BooksBorrowed.ToList())
-                    {
-                        context.Entry(book).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                    }
 
-                    context.Customers.Remove(customer);
+
+                    // Remove the author from the context.
+                    context.Authors.Remove(author);
                     context.SaveChanges();
                 }
                 else
                 {
-                    Console.WriteLine("Invalid customer.");
+                    Console.WriteLine("Invalid author.");
+                }
+
+            }
+        }
+
+        public void DeleteBook(int bookID)
+        {
+            using (Context context = new Context())
+            {
+                // Find the book to be deleted based on its ID.
+                Book book = context.Books.Find(bookID);
+               
+                // Check if the book exists.
+                if (book != null)
+                {
+
+
+                    // Remove the book from the context.
+                    context.Books.Remove(book);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid book.");
                 }
 
             }

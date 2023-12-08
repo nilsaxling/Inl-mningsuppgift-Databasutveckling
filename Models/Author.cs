@@ -9,8 +9,8 @@ namespace Inlämningsuppgift_Databasutveckling.Models
 {
     internal class Author
     {
-       // [Key]
-        public int Id { get; set; }
+       
+        public int AuthorID { get; set; } //Primary Key
         public string Name { get; set; }
         public ICollection<Book> Books { get; set; } = new List<Book>();
     }

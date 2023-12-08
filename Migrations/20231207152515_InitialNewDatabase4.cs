@@ -5,7 +5,7 @@
 namespace Inlämningsuppgift_Databasutveckling.Migrations
 {
     /// <inheritdoc />
-    public partial class changeOfClassesAndKeys : Migration
+    public partial class InitialNewDatabase4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
